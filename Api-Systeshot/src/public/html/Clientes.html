@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Clientes - Sitio Web de Gestión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #ffffff;
+            color: #000000;
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid #ff0000;
+        }
+
+        #contenido {
+            background-color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Comic Sans MS', cursive;
+            text-shadow: 2px 2px 2px #999999;
+            color: #000000;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #000000;
+        }
+
+        th {
+            background-color: #ff0000;
+            color: white;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #000000;
+            font-family: sans-serif;
+            box-sizing: border-box;
+        }
+
+        button,
+        input[type="submit"] {
+            background-color: #ff0000;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover,
+        input[type="submit"]:hover {
+            background-color: #ff3333;
+        }
+
+        .return-button {
+            background-color: #ff0000;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .return-button:hover {
+            background-color: #ff3333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="/img/logotipo.png" alt="Logotipo de la empresa">
+        <h1>Gestión de Clientes</h1>
+    </header>
+
+    <section id="contenido">
+        <h2>Clientes Registrados</h2>
+        <table id="clientesTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Teléfono</th>
+                    <th>Correo Electrónico</th>
+                    <th>Dirección</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Clientes se agregarán aquí -->
+            </tbody>
+        </table>
+
+        <h2>Agregar Cliente</h2>
+        <form id="addClienteForm">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="Nombre" required>
+
+            <label for="apellido">Apellido:</label>
+            <input type="text" id="apellido" name="Apellido" required>
+
+            <label for="telefono">Teléfono:</label>
+            <input type="text" id="telefono" name="Telefono" required>
+
+            <label for="correo">Correo Electrónico:</label>
+            <input type="email" id="correo" name="Correo_Electronico" required>
+
+            <label for="direccion">Dirección:</label>
+            <input type="text" id="direccion" name="Direccion" required>
+
+            <input type="submit" value="Agregar Cliente">
+        </form>
+
+        <h2>Actualizar Cliente</h2>
+        <form id="updateClienteForm">
+            <label for="clienteId">ID de Cliente:</label>
+            <input type="text" id="clienteId" name="clienteId" readonly>
+
+            <label for="newNombre">Nuevo Nombre:</label>
+            <input type="text" id="newNombre" name="newNombre" required>
+
+            <label for="newApellido">Nuevo Apellido:</label>
+            <input type="text" id="newApellido" name="newApellido" required>
+
+            <label for="newTelefono">Nuevo Teléfono:</label>
+            <input type="text" id="newTelefono" name="newTelefono" required>
+
+            <label for="newCorreo">Nuevo Correo Electrónico:</label>
+            <input type="email" id="newCorreo" name="newCorreo" required>
+
+            <label for="newDireccion">Nueva Dirección:</label>
+            <input type="text" id="newDireccion" name="newDireccion" required>
+
+            <input type="submit" value="Actualizar Cliente">
+        </form>
+
+        <a href="Inicio.html" class="return-button">Regresar</a>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const clientesTableBody = document.querySelector('#clientesTable tbody');
+
+            async function fetchClientes() {
+                const response = await fetch('http://localhost:3000/api/clientes');
+                const clientes = await response.json();
+
+                clientesTableBody.innerHTML = '';
+                clientes.forEach(cliente => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${cliente.id}</td>
+                        <td>${cliente.Nombre}</td>
+                        <td>${cliente.Apellido}</td>
+                        <td>${cliente.Telefono}</td>
+                        <td>${cliente.Correo_Electronico}</td>
+                        <td>${cliente.Direccion}</td>
+                        <td class="action-buttons">
+                            <button onclick="editCliente(${cliente.id}, '${cliente.Nombre}', '${cliente.Apellido}', '${cliente.Telefono}', '${cliente.Correo_Electronico}', '${cliente.Direccion}')">Editar</button>
+                            <button onclick="deleteCliente(${cliente.id})">Eliminar</button>
+                        </td>
+                    `;
+                    clientesTableBody.appendChild(row);
+                });
+            }
+
+            async function addCliente(event) {
+                event.preventDefault();
+                
+                const nombre = document.getElementById('nombre').value;
+                const apellido = document.getElementById('apellido').value;
+                const telefono = document.getElementById('telefono').value;
+                const correo = document.getElementById('correo').value;
+                const direccion = document.getElementById('direccion').value;
+
+                const response = await fetch('http://localhost:3000/api/clientes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Nombre: nombre,
+                        Apellido: apellido,
+                        Telefono: telefono,
+                        Correo_Electronico: correo,
+                        Direccion: direccion
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Cliente agregado con éxito');
+                    fetchClientes();
+                    document.getElementById('addClienteForm').reset();
+                } else {
+                    alert('Error al agregar cliente');
+                }
+            }
+
+            async function updateCliente(event) {
+                event.preventDefault();
+                
+                const clienteId = document.getElementById('clienteId').value;
+                const newNombre = document.getElementById('newNombre').value;
+                const newApellido = document.getElementById('newApellido').value;
+                const newTelefono = document.getElementById('newTelefono').value;
+                const newCorreo = document.getElementById('newCorreo').value;
+                const newDireccion = document.getElementById('newDireccion').value;
+
+                const response = await fetch(`http://localhost:3000/api/clientes/${clienteId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Nombre: newNombre,
+                        Apellido: newApellido,
+                        Telefono: newTelefono,
+                        Correo_Electronico: newCorreo,
+                        Direccion: newDireccion
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Cliente actualizado con éxito');
+                    fetchClientes();
+                    document.getElementById('updateClienteForm').reset();
+                } else {
+                    alert('Error al actualizar cliente');
+                }
+            }
+
+            async function deleteCliente(clienteId) {
+                const response = await fetch(`http://localhost:3000/api/clientes/${clienteId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Cliente eliminado con éxito');
+                    fetchClientes();
+                } else {
+                    alert('Error al eliminar cliente');
+                }
+            }
+
+            window.editCliente = function(id, nombre, apellido, telefono, correo, direccion) {
+                document.getElementById('clienteId').value = id;
+                document.getElementById('newNombre').value = nombre;
+                document.getElementById('newApellido').value = apellido;
+                document.getElementById('newTelefono').value = telefono;
+                document.getElementById('newCorreo').value = correo;
+                document.getElementById('newDireccion').value = direccion;
+            }
+
+            document.getElementById('addClienteForm').addEventListener('submit', addCliente);
+            document.getElementById('updateClienteForm').addEventListener('submit', updateCliente);
+
+            fetchClientes();
+        });
+    </script>
+</body>
+</html>

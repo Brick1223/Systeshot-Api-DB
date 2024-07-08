@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff; 
+            margin: 0;
+            padding: 0;
+        }
+    
+        header {
+            background-color: #ffffff; 
+            color: #000000; 
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid #ff0000; 
+        }
+    
+        #contenido {
+            background-color: #ffffff; 
+            text-align: center; 
+            padding: 20px; 
+        }
+    
+        form {
+            background-color: #ffffff; 
+            border: none; 
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: left; 
+        }
+    
+        label {
+            color: #000000; 
+            display: block; 
+            margin-bottom: 5px; 
+            font-family: 'Comic Sans MS', cursive; 
+            text-shadow: 2px 2px 2px #999999; 
+        }
+    
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #000000; 
+            box-sizing: border-box; 
+        }
+    
+        button {
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            width: 100%; 
+            box-sizing: border-box; 
+            margin-bottom: 10px; 
+            background-color: #ff0000; 
+            color: #ffffff; 
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #ff3333;
+        }
+
+        /* Estilo específico para los botones Registrarse y Olvidé mi contraseña */
+        .registrarse,
+        .olvidar-contrasena {
+            background-color: transparent;
+            color: #ff0000;
+            border: 2px solid #ff0000;
+        }
+
+        .registrarse:hover,
+        .olvidar-contrasena:hover {
+            background-color: #ff0000;
+            color: #ffffff;
+        }
+    
+        .destacado { 
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .destacado a {
+            text-decoration: none;
+            background-color: #ff0000;
+            color: #ffffff;
+            padding: 10px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .destacado a:hover {
+            background-color: #ff3333;
+        }
+
+        .reveal-password {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="/img/logotipo.png" alt="Logotipo de la empresa">
+        <h1>Iniciar Sesión</h1>
+    </header>
+
+    <section id="contenido">
+        <form id="loginForm">
+            <label for="username">Nombre de Usuario:</label>
+            <input type="text" id="username" name="username" required>
+        
+            <label for="password">Contraseña:</label>
+            <div style="position: relative;">
+                <input type="password" id="password" name="password" required>
+                <span class="reveal-password" onclick="togglePasswordVisibility()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                        <path d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M12 4C7.03 4 3 8.03 3 13s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7zM12 6c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z"/>
+                    </svg>
+                </span>
+            </div>
+        
+            <button type="submit">Ingresar</button>
+        </form>
+
+        <button class="registrarse" onclick="window.location.href = '/Registro.html'">Registrarse</button>
+
+        <button class="olvidar-contrasena" onclick="window.location.href = '/Contraseña.html'">Olvidé mi contraseña</button>
+
+        <div class="destacado">
+            <a href="Inicio.html">Regresar</a>
+            <p>Explora la interfaz principal del sistema</p>
+        </div>
+    </section>
+
+    <script>
+        function togglePasswordVisibility() {
+            var passwordInput = document.getElementById("password");
+            var icon = document.querySelector(".reveal-password svg");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                icon.setAttribute("viewBox", "0 0 24 24");
+                icon.innerHTML = '<path d="M0 0h24v24H0z" fill="none"/><path d="M12 4C7.03 4 3 8.03 3 13s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7zM12 6c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z"/>';
+
+            } else {
+                passwordInput.type = "password";
+                icon.setAttribute("viewBox", "0 0 24 24");
+                icon.innerHTML = '<path d="M0 0h24v24H0z" fill="none"/><path d="M12 4C7.03 4 3 8.03 3 13s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7zM12 6c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="2.5"/>';
+
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('http://localhost:3000/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Inicio de sesión exitoso');
+                // Almacenar el token en el almacenamiento local
+                localStorage.setItem('token', data.token);
+                // Redireccionar a la página principal
+                window.location.href = '/src/public/html/Index.html';
+            } else {
+                alert('Error: ' + data.error);
+            }
+        });
+    </script>
+</body>
+</html>
+

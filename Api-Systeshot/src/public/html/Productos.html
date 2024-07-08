@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos - Sitio Web de Gestión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #ffffff;
+            color: #000000;
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid #ff0000;
+        }
+
+        #contenido {
+            background-color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Comic Sans MS', cursive;
+            text-shadow: 2px 2px 2px #999999;
+            color: #000000;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #000000;
+        }
+
+        th {
+            background-color: #ff0000;
+            color: white;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #000000;
+            font-family: sans-serif;
+            box-sizing: border-box;
+        }
+
+        button,
+        input[type="submit"] {
+            background-color: #ff0000;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover,
+        input[type="submit"]:hover {
+            background-color: #ff3333;
+        }
+
+        .return-button {
+            background-color: #ff0000;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .return-button:hover {
+            background-color: #ff3333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="/img/logotipo.png" alt="Logotipo de la empresa">
+        <h1>Gestión de Productos</h1>
+    </header>
+
+    <section id="contenido">
+        <h2>Productos Registrados</h2>
+        <table id="productosTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Productos se agregarán aquí -->
+            </tbody>
+        </table>
+
+        <h2>Agregar Producto</h2>
+        <form id="addProductForm">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" required>
+
+            <label for="descripcion">Descripción:</label>
+            <input type="text" id="descripcion" name="descripcion" required>
+
+            <label for="precio">Precio:</label>
+            <input type="number" id="precio" name="precio" step="0.01" required>
+
+            <label for="stock">Stock:</label>
+            <input type="number" id="stock" name="stock" required>
+
+            <input type="submit" value="Agregar Producto">
+        </form>
+
+        <h2>Actualizar Producto</h2>
+        <form id="updateProductForm">
+            <label for="productId">ID de Producto:</label>
+            <input type="text" id="productId" name="productId" readonly>
+
+            <label for="newNombre">Nuevo Nombre:</label>
+            <input type="text" id="newNombre" name="newNombre" required>
+
+            <label for="newDescripcion">Nueva Descripción:</label>
+            <input type="text" id="newDescripcion" name="newDescripcion" required>
+
+            <label for="newPrecio">Nuevo Precio:</label>
+            <input type="number" id="newPrecio" name="newPrecio" step="0.01" required>
+
+            <label for="newStock">Nuevo Stock:</label>
+            <input type="number" id="newStock" name="newStock" required>
+
+            <input type="submit" value="Actualizar Producto">
+        </form>
+
+        <a href="Inicio.html" class="return-button">Regresar</a>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const productosTableBody = document.querySelector('#productosTable tbody');
+
+            async function fetchProducts() {
+                const response = await fetch('http://localhost:3000/api/productos');
+                const productos = await response.json();
+
+                productosTableBody.innerHTML = '';
+                productos.forEach(producto => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${producto.id}</td>
+                        <td>${producto.nombre}</td>
+                        <td>${producto.descripcion}</td>
+                        <td>${producto.precio}</td>
+                        <td>${producto.stock}</td>
+                        <td class="action-buttons">
+                            <button onclick="editProduct(${producto.id}, '${producto.nombre}', '${producto.descripcion}', ${producto.precio}, ${producto.stock})">Editar</button>
+                            <button onclick="deleteProduct(${producto.id})">Eliminar</button>
+                        </td>
+                    `;
+                    productosTableBody.appendChild(row);
+                });
+            }
+
+            async function addProduct(event) {
+                event.preventDefault();
+                
+                const nombre = document.getElementById('nombre').value;
+                const descripcion = document.getElementById('descripcion').value;
+                const precio = document.getElementById('precio').value;
+                const stock = document.getElementById('stock').value;
+
+                const response = await fetch('http://localhost:3000/api/productos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre,
+                        descripcion,
+                        precio,
+                        stock
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Producto agregado con éxito');
+                    fetchProducts();
+                    document.getElementById('addProductForm').reset();
+                } else {
+                    alert('Error al agregar producto');
+                }
+            }
+
+            async function updateProduct(event) {
+                event.preventDefault();
+                
+                const productId = document.getElementById('productId').value;
+                const newNombre = document.getElementById('newNombre').value;
+                const newDescripcion = document.getElementById('newDescripcion').value;
+                const newPrecio = document.getElementById('newPrecio').value;
+                const newStock = document.getElementById('newStock').value;
+
+                const response = await fetch(`http://localhost:3000/api/productos/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre: newNombre,
+                        descripcion: newDescripcion,
+                        precio: newPrecio,
+                        stock: newStock
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Producto actualizado con éxito');
+                    fetchProducts();
+                    document.getElementById('updateProductForm').reset();
+                } else {
+                    alert('Error al actualizar producto');
+                }
+            }
+
+            async function deleteProduct(productId) {
+                const response = await fetch(`http://localhost:3000/api/productos/${productId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Producto eliminado con éxito');
+                    fetchProducts();
+                } else {
+                    alert('Error al eliminar producto');
+                }
+            }
+
+            window.editProduct = function(id, nombre, descripcion, precio, stock) {
+                document.getElementById('productId').value = id;
+                document.getElementById('newNombre').value = nombre;
+                document.getElementById('newDescripcion').value = descripcion;
+                document.getElementById('newPrecio').value = precio;
+                document.getElementById('newStock').value = stock;
+            }
+
+            document.getElementById('addProductForm').addEventListener('submit', addProduct);
+            document.getElementById('updateProductForm').addEventListener('submit', updateProduct);
+
+            fetchProducts();
+        });
+    </script>
+</body>
+</html>

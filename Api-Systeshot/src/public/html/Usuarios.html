@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios - Sitio Web de Gestión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #ffffff;
+            color: #000000;
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid #ff0000;
+        }
+
+        #contenido {
+            background-color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Comic Sans MS', cursive;
+            text-shadow: 2px 2px 2px #999999;
+            color: #000000;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #000000;
+        }
+
+        th {
+            background-color: #ff0000;
+            color: white;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #000000;
+            font-family: sans-serif;
+            box-sizing: border-box;
+        }
+
+        button,
+        input[type="submit"] {
+            background-color: #ff0000;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover,
+        input[type="submit"]:hover {
+            background-color: #ff3333;
+        }
+
+        .return-button {
+            background-color: #ff0000;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .return-button:hover {
+            background-color: #ff3333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="/img/logotipo.png" alt="Logotipo de la empresa">
+        <h1>Gestión de Usuarios</h1>
+    </header>
+
+    <section id="contenido">
+        <h2>Usuarios Registrados</h2>
+        <table id="usersTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre de Usuario</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Usuarios se agregarán aquí -->
+            </tbody>
+        </table>
+
+        <h2>Actualizar Usuario</h2>
+        <form id="updateForm">
+            <label for="userId">ID de Usuario:</label>
+            <input type="text" id="userId" name="userId" readonly>
+
+            <label for="newUsername">Nuevo Nombre de Usuario:</label>
+            <input type="text" id="newUsername" name="newUsername" required>
+
+            <label for="newPassword">Nueva Contraseña:</label>
+            <input type="password" id="newPassword" name="newPassword" required>
+
+            <input type="submit" value="Actualizar">
+        </form>
+
+        <a href="Inicio.html" class="return-button">Regresar</a>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const usersTableBody = document.querySelector('#usersTable tbody');
+
+            async function fetchUsers() {
+                const response = await fetch('http://localhost:3000/api/auth/users');
+                const users = await response.json();
+
+                usersTableBody.innerHTML = '';
+                users.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td class="action-buttons">
+                            <button onclick="editUser(${user.id}, '${user.username}')">Editar</button>
+                            <button onclick="deleteUser(${user.id})">Eliminar</button>
+                        </td>
+                    `;
+                    usersTableBody.appendChild(row);
+                });
+            }
+
+            async function updateUser(event) {
+                event.preventDefault();
+                
+                const userId = document.getElementById('userId').value;
+                const newUsername = document.getElementById('newUsername').value;
+                const newPassword = document.getElementById('newPassword').value;
+
+                const response = await fetch(`http://localhost:3000/api/auth/users/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: newUsername,
+                        password: newPassword
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Usuario actualizado con éxito');
+                    fetchUsers();
+                    document.getElementById('updateForm').reset();
+                } else {
+                    alert('Error al actualizar usuario');
+                }
+            }
+
+            async function deleteUser(userId) {
+                const response = await fetch(`http://localhost:3000/api/auth/users/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Usuario eliminado con éxito');
+                    fetchUsers();
+                } else {
+                    alert('Error al eliminar usuario');
+                }
+            }
+
+            window.editUser = function(id, username) {
+                document.getElementById('userId').value = id;
+                document.getElementById('newUsername').value = username;
+            }
+
+            document.getElementById('updateForm').addEventListener('submit', updateUser);
+
+            fetchUsers();
+        });
+    </script>
+</body>
+</html>

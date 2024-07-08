@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Gastos - Sitio Web de Gestión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #ffffff;
+            color: #000000;
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid #ff0000;
+        }
+
+        #contenido {
+            background-color: #ffffff;
+            padding: 20px;
+        }
+
+        h1 {
+            font-family: 'Comic Sans MS', cursive;
+            text-shadow: 2px 2px 2px #000000;
+            color: #000000;
+        }
+
+        .form-container {
+            text-align: center;
+        }
+
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        label {
+            color: #000000;
+            display: block;
+            margin-top: 10px;
+            font-family: sans-serif;
+            font-weight: bold;
+        }
+
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #000000;
+            font-family: sans-serif;
+        }
+
+        button {
+            background-color: #ff0000;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #ff3333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #000000;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #ff0000;
+            color: #ffffff;
+        }
+
+        .destacado {
+            margin-top: 20px;
+        }
+
+        .destacado li {
+            list-style: none;
+            display: inline;
+            margin-right: 10px;
+        }
+
+        .destacado a {
+            text-decoration: none;
+            background-color: #ff0000;
+            color: #ffffff;
+            padding: 10px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .destacado a:hover {
+            background-color: #ff3333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="/img/logotipo.png" alt="Logotipo de la empresa">
+        <h1>Gestión de Gastos</h1>
+    </header>
+
+    <nav>
+
+    </nav>
+
+    <section id="contenido">
+        <h2>Registrar Nuevo Gasto</h2>
+        <div class="form-container">
+            <form id="gastoForm">
+                <label for="descripcion">Descripción:</label>
+                <input type="text" id="descripcion" name="descripcion" required>
+
+                <label for="monto">Monto:</label>
+                <input type="number" id="monto" name="monto" required>
+
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" name="fecha" required>
+
+                <button type="button" onclick="registrarGasto()">Registrar Gasto</button>
+            </form>
+        </div>
+
+        <h2>Lista de Gastos</h2>
+        <table id="gastosTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Descripción</th>
+                    <th>Monto</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Filas de gastos serán insertadas aquí -->
+            </tbody>
+        </table>
+
+        <div class="destacado">
+            <li><a href="Inicio.html">Regresar</a></li>
+            <p>Explora la interfaz principal del sistema</p>
+        </div>
+    </section>
+
+    <footer>
+
+    </footer>
+
+    <script>
+        async function fetchGastos() {
+            const response = await fetch('http://localhost:3000/api/gastos');
+            const gastos = await response.json();
+            const tableBody = document.querySelector('#gastosTable tbody');
+            tableBody.innerHTML = '';
+            gastos.forEach(gasto => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${gasto.id}</td>
+                    <td>${gasto.descripcion}</td>
+                    <td>${gasto.monto}</td>
+                    <td>${gasto.fecha}</td>
+                    <td>
+                        <button onclick="editarGasto(${gasto.id})">Editar</button>
+                        <button onclick="eliminarGasto(${gasto.id})">Eliminar</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        async function registrarGasto() {
+            const descripcion = document.getElementById('descripcion').value;
+            const monto = document.getElementById('monto').value;
+            const fecha = document.getElementById('fecha').value;
+            const response = await fetch('http://localhost:3000/api/gastos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ descripcion, monto, fecha })
+            });
+            if (response.ok) {
+                fetchGastos();
+            }
+        }
+
+        async function editarGasto(id) {
+            const descripcion = prompt('Ingrese la nueva descripción:');
+            const monto = prompt('Ingrese el nuevo monto:');
+            const fecha = prompt('Ingrese la nueva fecha (YYYY-MM-DD):');
+            const response = await fetch(`http://localhost:3000/api/gastos/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ descripcion, monto, fecha })
+            });
+            if (response.ok) {
+                fetchGastos();
+            }
+        }
+
+        async function eliminarGasto(id) {
+            const response = await fetch(`http://localhost:3000/api/gastos/${id}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                fetchGastos();
+            }
+        }
+
+        fetchGastos();
+    </script>
+</body>
+</html>

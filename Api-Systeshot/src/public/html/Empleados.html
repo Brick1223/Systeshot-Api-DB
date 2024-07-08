@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Empleados - Sitio Web de Gestión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #ffffff;
+            color: #000000;
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid #ff0000;
+        }
+
+        #contenido {
+            background-color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Comic Sans MS', cursive;
+            text-shadow: 2px 2px 2px #999999;
+            color: #000000;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #000000;
+        }
+
+        th {
+            background-color: #ff0000;
+            color: white;
+        }
+
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #000000;
+            font-family: sans-serif;
+            box-sizing: border-box;
+        }
+
+        button,
+        input[type="submit"] {
+            background-color: #ff0000;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover,
+        input[type="submit"]:hover {
+            background-color: #ff3333;
+        }
+
+        .return-button {
+            background-color: #ff0000;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .return-button:hover {
+            background-color: #ff3333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="/img/logotipo.png" alt="Logotipo de la empresa">
+        <h1>Gestión de Empleados</h1>
+    </header>
+
+    <section id="contenido">
+        <h2>Empleados Registrados</h2>
+        <table id="empleadosTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Cargo</th>
+                    <th>Fecha de Contratación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Empleados se agregarán aquí -->
+            </tbody>
+        </table>
+
+        <h2>Agregar Empleado</h2>
+        <form id="addEmpleadoForm">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" required>
+
+            <label for="apellido">Apellido:</label>
+            <input type="text" id="apellido" name="apellido" required>
+
+            <label for="cargo">Cargo:</label>
+            <input type="text" id="cargo" name="cargo" required>
+
+            <label for="fecha_contratacion">Fecha de Contratación:</label>
+            <input type="date" id="fecha_contratacion" name="fecha_contratacion" required>
+
+            <input type="submit" value="Agregar Empleado">
+        </form>
+
+        <h2>Actualizar Empleado</h2>
+        <form id="updateEmpleadoForm">
+            <label for="empleadoId">ID de Empleado:</label>
+            <input type="text" id="empleadoId" name="empleadoId" readonly>
+
+            <label for="newNombre">Nuevo Nombre:</label>
+            <input type="text" id="newNombre" name="newNombre" required>
+
+            <label for="newApellido">Nuevo Apellido:</label>
+            <input type="text" id="newApellido" name="newApellido" required>
+
+            <label for="newCargo">Nuevo Cargo:</label>
+            <input type="text" id="newCargo" name="newCargo" required>
+
+            <label for="newFechaContratacion">Nueva Fecha de Contratación:</label>
+            <input type="date" id="newFechaContratacion" name="newFechaContratacion" required>
+
+            <input type="submit" value="Actualizar Empleado">
+        </form>
+
+        <a href="Inicio.html" class="return-button">Regresar</a>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const empleadosTableBody = document.querySelector('#empleadosTable tbody');
+
+            async function fetchEmpleados() {
+                const response = await fetch('http://localhost:3000/api/empleados');
+                const empleados = await response.json();
+
+                empleadosTableBody.innerHTML = '';
+                empleados.forEach(empleado => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${empleado.id}</td>
+                        <td>${empleado.nombre}</td>
+                        <td>${empleado.apellido}</td>
+                        <td>${empleado.cargo}</td>
+                        <td>${new Date(empleado.fecha_contratacion).toLocaleDateString()}</td>
+                        <td class="action-buttons">
+                            <button onclick="editEmpleado(${empleado.id}, '${empleado.nombre}', '${empleado.apellido}', '${empleado.cargo}', '${empleado.fecha_contratacion}')">Editar</button>
+                            <button onclick="deleteEmpleado(${empleado.id})">Eliminar</button>
+                        </td>
+                    `;
+                    empleadosTableBody.appendChild(row);
+                });
+            }
+
+            async function addEmpleado(event) {
+                event.preventDefault();
+                
+                const nombre = document.getElementById('nombre').value;
+                const apellido = document.getElementById('apellido').value;
+                const cargo = document.getElementById('cargo').value;
+                const fechaContratacion = document.getElementById('fecha_contratacion').value;
+
+                const response = await fetch('http://localhost:3000/api/empleados', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre,
+                        apellido,
+                        cargo,
+                        fecha_contratacion: fechaContratacion
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Empleado agregado con éxito');
+                    fetchEmpleados();
+                    document.getElementById('addEmpleadoForm').reset();
+                } else {
+                    alert('Error al agregar empleado');
+                }
+            }
+
+            async function updateEmpleado(event) {
+                event.preventDefault();
+                
+                const empleadoId = document.getElementById('empleadoId').value;
+                const newNombre = document.getElementById('newNombre').value;
+                const newApellido = document.getElementById('newApellido').value;
+                const newCargo = document.getElementById('newCargo').value;
+                const newFechaContratacion = document.getElementById('newFechaContratacion').value;
+
+                const response = await fetch(`http://localhost:3000/api/empleados/${empleadoId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre: newNombre,
+                        apellido: newApellido,
+                        cargo: newCargo,
+                        fecha_contratacion: newFechaContratacion
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Empleado actualizado con éxito');
+                    fetchEmpleados();
+                    document.getElementById('updateEmpleadoForm').reset();
+                } else {
+                    alert('Error al actualizar empleado');
+                }
+            }
+
+            async function deleteEmpleado(empleadoId) {
+                const response = await fetch(`http://localhost:3000/api/empleados/${empleadoId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Empleado eliminado con éxito');
+                    fetchEmpleados();
+                } else {
+                    alert('Error al eliminar empleado');
+                }
+            }
+
+            window.editEmpleado = function(id, nombre, apellido, cargo, fechaContratacion) {
+                document.getElementById('empleadoId').value = id;
+                document.getElementById('newNombre').value = nombre;
+                document.getElementById('newApellido').value = apellido;
+                document.getElementById('newCargo').value = cargo;
+                document.getElementById('newFechaContratacion').value = new Date(fechaContratacion).toISOString().split('T')[0];
+            }
+
+            document.getElementById('addEmpleadoForm').addEventListener('submit', addEmpleado);
+            document.getElementById('updateEmpleadoForm').addEventListener('submit', updateEmpleado);
+
+            fetchEmpleados();
+        });
+    </script>
+</body>
+</html>
